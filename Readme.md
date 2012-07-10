@@ -40,27 +40,27 @@ The core `wordfind.js` library contains no dependencies and will work both in th
         
     </script>
 
-## Installation
-
-    _wordfind.js_ is a standalone javascript file, simply add to your project.
-
 ## Options
 
-_Wordfind_ supports an options object when creating new puzzles. The options object supports the following optional properties.
+_Wordfind_ supports an options object when creating new puzzles. The options object supports the following properties.
 
 #### height
 
 The desired number of rows in the puzzle. Will automatically be increased if a valid puzzle cannot be found with specified number of rows. Specifying a reasonable `height` will improve performance when creating puzzles.
+
 Defaults to the minimum number of rows needed to create a valid puzzle.  
 
 #### width
 
 The desired number of columns in the puzzle. Will automatically be increased if a valid puzzle cannot be found with specified number of columns. Specifying a reasonable `width` will improve performance when creating puzzles.
+
 Defaults to the minimum number of columns needed to create a valid puzzle.
 
 #### orientations
 
-An array containing the names of the word orientations that should be used when creating the puzzle. The list of valid orientations can be found by calling `wordfind.validOrientations`.  By default they include:
+An array containing the names of the word orientations that should be used when creating the puzzle. The list of valid orientations can be found by calling `wordfind.validOrientations`.  
+
+By default they include:
 
     horizontal
     horizontalBack
@@ -72,26 +72,30 @@ An array containing the names of the word orientations that should be used when 
     diagonalUpBack
 
 To generate easier puzzles, you may wish to specify only the forward orientations.  The simplest puzzles would include only `horizontal` and `vertical`. 
+
 Default is to use all of the orientations when placing words.  
 
 #### fillBlanks
 
 True to fill in the remaining empty squares after generating the puzzle, false to leave them empty.  This is useful when testing to see what the shape of the solution looks like. Can also be used to generate a mask to determine when all words have been found. 
+
 Default is `true`.
 
 #### maxAttempts
 
 Specifies the maximum number of attempts to create a valid puzzle of a certain size.  If a valid puzzle cannot be constructed after `maxAttempts` have been  made, the puzzle height and width are incremented by one and the number of attempts is reset. Increasing this number can result in slightly more compact puzzles but at the cost of performance.
+
 Default is `3`.  
 
 #### preferOverlap
 
 Determines how `wordfind` decides where to place a word within the puzzle. When `true`, it randomly selects amongst the positions the highest number of letters that overlap creating a more compact puzzle. When `false`, it randomly selects amongst all valid positions creating a less compact puzzle.
+
 Default is `true`.
 
-## Creating Puzzles using _Wordfind_
+## Creating Puzzles
 
-_Wordfind_ provides a simple API for creating puzzles.
+Including `wordfind.js` creates a `wordfind` object with the following properties and methods.
 
 #### validOrientations
 
@@ -134,7 +138,7 @@ For example:
 
     var puzzle = wordfind.newPuzzle(['cow']);
 
-puzzle would be in the form:
+Will return a puzzle in the following form:
 
     [[A, X, C],
      [P, E, O],
@@ -152,7 +156,9 @@ For example:
 
 #### solve(puzzle, words)
 
-Locates the specified `words` within the `puzzle`. `words` should be an array of strings containing the words to be solved for. `puzzle` should be a valid _Wordfind_ puzzle. Returns two arrays, `found` and `notFound`.  The `found` array contains a set of `location` objects that have the following properties:
+Locates the specified `words` within the `puzzle`. `words` should be an array of strings containing the words to be solved for. `puzzle` should be a valid _Wordfind_ puzzle. Returns two arrays, `found` and `notFound`.  
+
+The `found` array contains a set of `location` objects that have the following properties:
 
     word:        the word that was found
     x:           the column position of the first leter of the word
