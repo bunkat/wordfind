@@ -138,6 +138,16 @@ For example:
 
     var puzzle = wordfind.newPuzzle(['cow']);
 
+Or specifying an options object:
+
+    var puzzle = wordFind.newPuzzle(['cow'], {
+          height: 3,
+          width:  3,
+          orientations: ['horizontal', 'vertical'],
+          fillBlanks: true,
+          preferOverlap: false
+        });
+
 Will return a puzzle in the following form:
 
     [[A, X, C],
