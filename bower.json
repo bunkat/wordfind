@@ -1,0 +1,11 @@
+{
+  "name": "wordfind",
+  "version": "0.0.0",
+  "homepage": "https://github.com/bunkat/wordfind",
+  "description": "A small javascript library for generating and solving word find (also known as word search) puzzles.",
+  "main": "./src/wordfind.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*"
+  ]
+}
