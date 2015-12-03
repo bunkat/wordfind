@@ -283,9 +283,12 @@
         // attach events to the buttons
         // optimistically add events for windows 8 touch
         if (window.navigator.msPointerEnabled) {
-          $('.puzzleSquare').on('MSPointerDown', startTurn);
-          $('.puzzleSquare').on('MSPointerOver', select);
-          $('.puzzleSquare').on('MSPointerUp', endTurn);
+          $('.puzzleSquare').on('pointerdown', startTurn);
+          $('.puzzleSquare').on('pointerover', select);
+          $('.puzzleSquare').on('pointerup', endTurn);
+          $('.puzzleSquare').mousedown(startTurn);
+          $('.puzzleSquare').mouseenter(mouseMove);
+          $('.puzzleSquare').mouseup(endTurn);
         }
         else {
           $('.puzzleSquare').mousedown(startTurn);
