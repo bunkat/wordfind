@@ -1,0 +1,20 @@
+{
+  "name": "wordfind",
+  "version": "1.0.0",
+  "description": "Generate Word Find (also known as Word Search) puzzles.",
+  "main": "src/wordfind.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bunkat/wordfind.git"
+  },
+  "keywords": [
+    "wordfind",
+    "wordsearch",
+    "puzzle"
+  ],
+  "author": "Bunkat",
+  "bugs": {
+    "url": "https://github.com/bunkat/wordfind/issues"
+  },
+  "homepage": "https://github.com/bunkat/wordfind#readme"
+}
