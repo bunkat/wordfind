@@ -4,6 +4,8 @@
 * Wordfind is freely distributable under the MIT license.
 * For all details and documentation:
 *     http://github.com/bunkat/wordfind
+* Edited by BTepolt, BSD License, 2017
+* http://github.com/HoldOffHunger/
 */
 
 (function () {
