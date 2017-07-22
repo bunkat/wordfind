@@ -4,6 +4,8 @@
 * Wordfind is freely distributable under the MIT license.
 * For all details and documentation:
 *     http://github.com/bunkat/wordfind
+* Edited by BTepolt, BSD License, 2017
+* http://github.com/HoldOffHunger/
 */
 
 (function () {
@@ -27,7 +29,72 @@
   var WordFind = function () {
 
     // Letters used to fill blank spots in the puzzle
-    var letters = 'abcdefghijklmnoprstuvwy';
+
+	var language = 'english';				// Default to English
+	var letters = 'abcdefghijklmnoprstuvwy';		// Default to Latin Alphabet
+	    
+	function setLanguage() {
+		if($('#language-name') && $('#language-name').attr('id')) {
+			language = $('#language-name').val();
+			switch(language) {
+				case 'english':
+			    		letters = 'abcdefghijklmnoprstuvwy';
+			    		break;
+			    	
+			    	case 'spanish':
+			    		letters = 'abcdefghijklmnoprstuvwy';
+			    		break;
+			    	
+			    	case 'french':
+			    		letters = 'abcdefghijklmnoprstuvwyéàèùâêîôûçëïü';
+			    		break;
+			    	
+			    	case 'italian':
+			    		letters = 'abcdefghijklmnoprstuvwyàèéìòóù';
+			    		break;
+			    	
+			    	case 'german':
+			    		letters = 'abcdefghijklmnoprstuvwyäöüß';
+			    		break;
+			    	
+			    	case 'japanese':
+			    		letters = 'アカサタナイキシチニウクスツヌエケセテネオコソトノハマヤラワヒミリヰフムユルンヘメレヱホモヨロヲガザダバパギジヂビピグズヅブプゲゼデベペゴゾドボポ';
+			    		break;
+			    	
+			    	case 'chinese':
+              letters = '安吧爸八百北不大岛的弟地东都对多儿二方港哥个关贵国过海好很会家见叫姐京九可老李零六吗妈么没美妹们明名哪那南你您朋七起千去人认日三上谁什生师识十是四他她台天湾万王我五西息系先香想小谢姓休学也一亿英友月再张这中字';
+              break;
+			    	
+			    	case 'hindi':
+			    		letters = 'अआएईऍऎऐइओऑऒऊऔउबभचछडढफफ़गघग़हजझकखख़लळऌऴॡमनङञणऩॐपक़रऋॠऱसशषटतठदथधड़ढ़वयय़ज़';
+			    		break;
+			    	
+			    	case 'indonesian':
+			    		letters = 'abcdefghijklmnoprstuvwy';	// has own script, but often spelled using Latin alphabet
+			    		break;
+			    	
+			    	case 'dutch':
+			    		letters = 'abcdefghijklmnoprstuvwyáéíóúàèëïöüĳ';
+			    		break;
+			    	
+			    	case 'polish':
+			    		letters = 'abcdefghijklmnoprstuvwyąćęłńóśżź';
+			    		break;
+			    	
+			    	case 'portuguese':
+			    		letters = 'abcdefghijklmnoprstuvwyàáâãçéêíóôõú';
+			    		break;
+			    	
+			    	case 'russian':
+			    		letters = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+			    		break;
+			    	
+			    	case 'korean':
+              letters = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎㅏㅓㅗㅜㅡㅣㅑㅕㅛㅠㄲㄸㅃㅆㅉㄳㄵㄶㄺㄻㄼㄽㄾㄿㅀㅄㅐㅒㅔㅖㅢㅘㅙㅚㅝㅞㅟ';
+              break;
+			}
+		}
+	}
 
     /**
     * Definitions for all the different orientations in which words can be
