@@ -6,6 +6,10 @@
 *     http://github.com/bunkat/wordfind
 */
 
+body {
+  font: 1em Arial;
+}
+
 p {
   font: 22pt sans-serif;
   margin: 20px 20px 0px 20px;
@@ -18,7 +22,7 @@ p {
   border: 1px solid black;
   padding: 20px;
   float: left;
-  margin: 30px 20px;
+  margin: 2rem;
 }
 
 #puzzle div {
@@ -28,12 +32,12 @@ p {
 
 /* style for each square in the puzzle */
 #puzzle .puzzleSquare {
-  height: 30px;
-  width: 30px;
+  height: 2.5rem;
+  width: 2.5rem;
   text-transform: uppercase;
   background-color: white;
   border: 0;
-  font: 1em sans-serif;
+  font: 1.5em sans-serif;
 }
 
 button::-moz-focus-inner {
@@ -65,17 +69,12 @@ button::-moz-focus-inner {
 * Styles for the word list
 */
 #words {
-  padding-top: 20px;
+  padding: 0 1em;
   -moz-column-count: 2;
-  -moz-column-gap: 20px;
   -webkit-column-count: 2;
-  -webkit-column-gap: 20px;
   column-count: 2;
   column-gap: 20px;
-  width: 300px;
-}
-
-#words ul {
+  max-width: 40rem;
   list-style-type: none;
 }
 
@@ -85,14 +84,32 @@ button::-moz-focus-inner {
 }
 
 /* indicates that the word has been found */
-#words .wordFound {
+.wordFound {
   text-decoration: line-through;
   color: gray;
 }
 
 /**
-* Styles for the button
+* Styles for the controls
 */
-#solve {
-  margin: 0 30px;
+fieldset {
+  padding: 0;
+  border: none;
+}
+input {
+  border: none;
+  border-bottom: 1px solid #ccc;
+  margin-top: 1em;
+  font-size: 1em;
+}
+#create-grid, #solve {
+  display: block;
+  margin-top: 1rem;
+}
+#filler-letters {
+  text-transform: uppercase;
+}
+
+#result-message {
+  font-size: 1.2em;
 }
