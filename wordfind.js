@@ -261,14 +261,12 @@
     * @param {int} overlap: The required level of overlap
     */
     var pruneLocations = function (locations, overlap) {
-
       var pruned = [];
       for(var i = 0, len = locations.length; i < len; i++) {
         if (locations[i].overlap >= overlap) {
           pruned.push(locations[i]);
         }
       }
-
       return pruned;
     };
 
@@ -312,6 +310,7 @@
       * orientations: list of orientations to use, default: all orientations
       * fillBlanks: true to fill in the blanks, default: true
       * maxAttempts: number of tries before increasing puzzle size, default:3
+      * maxGridGrowth: number of puzzle grid increases, default:10
       * preferOverlap: maximize word overlap or not, default: true
       *
       * Returns the puzzle that was created.
@@ -324,22 +323,21 @@
         if (!words.length) {
           throw new Error('Zero words provided');
         }
-        var wordList, puzzle, attempts = 0, opts = settings || {};
+        var wordList, puzzle, attempts = 0, gridGrowths = 0, opts = settings || {};
 
         // copy and sort the words by length, inserting words into the puzzle
         // from longest to shortest works out the best
-        wordList = words.slice(0).sort( function (a,b) {
-          return (a.length < b.length) ? 1 : 0;
-        });
+        wordList = words.slice(0).sort();
 
         // initialize the options
         var maxWordLength = wordList[0].length;
         var options = {
-          height:       opts.height || maxWordLength,
-          width:        opts.width || maxWordLength,
-          orientations: opts.orientations || allOrientations,
-          fillBlanks:   opts.fillBlanks !== undefined ? opts.fillBlanks : true,
-          maxAttempts:  opts.maxAttempts || 3,
+          height:        opts.height || maxWordLength,
+          width:         opts.width || maxWordLength,
+          orientations:  opts.orientations || allOrientations,
+          fillBlanks:    opts.fillBlanks !== undefined ? opts.fillBlanks : true,
+          maxAttempts:   opts.maxAttempts || 3,
+          maxGridGrowth: opts.maxGridGrowth !== undefined ? opts.maxGridGrowth : 10,
           preferOverlap: opts.preferOverlap !== undefined ? opts.preferOverlap : true
         };
 
@@ -351,8 +349,12 @@
             puzzle = fillPuzzle(wordList, options);
           }
 
-          if (!puzzle) { // WARNING: this loop can go on forever if there is a bug
-            console.log(`Could not find a solution in a ${options.width}x${options.height} grid after ${attempts - 1} attempts, incrementing size by 1`);
+          if (!puzzle) {
+            gridGrowths++;
+            if (gridGrowths > options.maxGridGrowth) {
+              throw new Error(`No valid ${options.width}x${options.height} grid found and not allowed to grow more`);
+            }
+            console.log(`No valid ${options.width}x${options.height} grid found after ${attempts - 1} attempts, trying with bigger grid`);
             options.height++;
             options.width++;
             attempts = 0;
@@ -361,12 +363,12 @@
 
         // fill in empty spaces with random letters
         if (options.fillBlanks) {
-            var lettersToAdd, extraLetterGenerator;
+            var lettersToAdd, fillingBlanksCount = 0, extraLetterGenerator;
             if (typeof options.fillBlanks === 'function') {
                 extraLetterGenerator = options.fillBlanks;
             } else if (typeof options.fillBlanks === 'string') {
                 lettersToAdd = options.fillBlanks.toLowerCase().split('');
-                extraLetterGenerator = () => lettersToAdd.pop() || '';
+                extraLetterGenerator = () => lettersToAdd.pop() || (fillingBlanksCount++ && '');
             } else {
                 extraLetterGenerator = () => LETTERS[Math.floor(Math.random() * LETTERS.length)];
             }
@@ -374,11 +376,42 @@
             if (lettersToAdd && lettersToAdd.length) {
                 throw new Error(`Some extra letters provided were not used: ${lettersToAdd}`);
             }
+            if (lettersToAdd && fillingBlanksCount) {
+                throw new Error(`${fillingBlanksCount} extra letters were missing to fill the grid`);
+            }
             var gridFillPercent = 100 * (1 - extraLettersCount / (options.width * options.height));
             console.log(`Blanks filled with ${extraLettersCount} random letters - Final grid is filled at ${gridFillPercent.toFixed(0)}%`);
         }
 
         return puzzle;
+      },
+
+      /**
+      * Wrapper around `newPuzzle` allowing to find a solution without some words.
+      *
+      * @param {options} settings: The options to use for this puzzle.
+      * Same as `newPuzzle` + allowedMissingWords
+      */
+      newPuzzleLax: function(words, opts) {
+        try {
+            return this.newPuzzle(words, opts);
+        } catch (e) {
+            if (!opts.allowedMissingWords) {
+                throw e;
+            }
+            var opts = Object.assign({}, opts); // shallow copy
+            opts.allowedMissingWords--;
+            for (var i = 0; i < words.length; i++) {
+                var wordList = words.slice(0);
+                wordList.splice(i, 1);
+                try {
+                    var puzzle = this.newPuzzleLax(wordList, opts);
+                    console.log(`Solution found without word "${words[i]}"`);
+                    return puzzle;
+                } catch (e) {} // continue if error
+            }
+            throw e;
+        }
       },
 
       /**

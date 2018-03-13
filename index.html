@@ -29,7 +29,7 @@
     <script>
     /* Example words setup */
     [
-        'adorable',
+        /*'adorable',
         'comique',
         'curieuse',
         'drole',
@@ -39,7 +39,17 @@
         'futee',
         'radieuse',
         'sensible',
-        'sincere',
+        'sincere',*/
+        'complice',
+        'creative',
+        'elegante',
+        'farceuse',
+        'joviale',
+        'motivee',
+        'ordonnee',
+        'prudente',
+        'sexy',
+        'tendre',
     ].map(word => WordFindGame.insertWordBefore($('#add-word').parent(), word));
     $('#filler-letters').val('LAETITIA');
 
@@ -48,7 +58,12 @@
         $('#result-message').removeClass();
         var game;
         try {
-            game = new WordFindGame('#puzzle', {fillBlanks: $('#filler-letters').val(), maxAttempts: 15});
+            game = new WordFindGame('#puzzle', {
+                fillBlanks: $('#filler-letters').val(),
+                allowedMissingWords: 2,
+                maxAttempts: 100,
+                maxGridGrowth: 0,
+            });
         } catch (error) {
             $('#result-message').text(`😞 ${error}, try to specify less ones`).css({color: 'red'});
             return;
