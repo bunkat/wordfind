@@ -332,13 +332,14 @@
         // initialize the options
         var maxWordLength = wordList[0].length;
         var options = {
-          height:        opts.height || maxWordLength,
-          width:         opts.width || maxWordLength,
-          orientations:  opts.orientations || allOrientations,
-          fillBlanks:    opts.fillBlanks !== undefined ? opts.fillBlanks : true,
-          maxAttempts:   opts.maxAttempts || 3,
-          maxGridGrowth: opts.maxGridGrowth !== undefined ? opts.maxGridGrowth : 10,
-          preferOverlap: opts.preferOverlap !== undefined ? opts.preferOverlap : true
+          height:           opts.height || maxWordLength,
+          width:            opts.width || maxWordLength,
+          orientations:     opts.orientations || allOrientations,
+          fillBlanks:       opts.fillBlanks !== undefined ? opts.fillBlanks : true,
+          allowExtraBlanks: opts.allowExtraBlanks !== undefined ? opts.allowExtraBlanks : true,
+          maxAttempts:      opts.maxAttempts || 3,
+          maxGridGrowth:    opts.maxGridGrowth !== undefined ? opts.maxGridGrowth : 10,
+          preferOverlap:    opts.preferOverlap !== undefined ? opts.preferOverlap : true
         };
 
         // add the words to the puzzle
@@ -376,7 +377,7 @@
             if (lettersToAdd && lettersToAdd.length) {
                 throw new Error(`Some extra letters provided were not used: ${lettersToAdd}`);
             }
-            if (lettersToAdd && fillingBlanksCount) {
+            if (lettersToAdd && fillingBlanksCount && !options.allowExtraBlanks) {
                 throw new Error(`${fillingBlanksCount} extra letters were missing to fill the grid`);
             }
             var gridFillPercent = 100 * (1 - extraLettersCount / (options.width * options.height));

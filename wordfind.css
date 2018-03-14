@@ -15,29 +15,54 @@ p {
   margin: 20px 20px 0px 20px;
 }
 
+h1 {
+  text-align: center; /* to center #puzzle on small devices */
+}
+
+#main {
+  margin: 0 auto;
+  max-width: 80rem;
+  text-align: center; /* to center #puzzle on small devices */
+}
+@media only screen and (min-width: 600px) {
+  #main {
+    text-align: left;
+  }
+}
+
 /**
 * Styles for the puzzle
 */
 #puzzle {
+  display: inline-block;
   border: 1px solid black;
-  padding: 20px;
-  float: left;
-  margin: 2rem;
+  padding: 3vw;
 }
 
-#puzzle div {
+#puzzle > div { /* rows */
   width: 100%;
   margin: 0 auto;
 }
 
 /* style for each square in the puzzle */
-#puzzle .puzzleSquare {
-  height: 2.5rem;
-  width: 2.5rem;
+.puzzleSquare {
+  height: 7vw;
+  width: 7vw;
   text-transform: uppercase;
   background-color: white;
   border: 0;
-  font: 1.5em sans-serif;
+  font: 5vw sans-serif;
+}
+@media only screen and (min-width: 600px) {
+  #puzzle {
+    float: left;
+    padding: 1rem;
+  }
+  .puzzleSquare {
+    height: 3.5rem;
+    width: 3.5rem;
+    font: 2.5rem sans-serif;
+  }
 }
 
 button::-moz-focus-inner {
@@ -69,13 +94,19 @@ button::-moz-focus-inner {
 * Styles for the word list
 */
 #words {
-  padding: 0 1em;
-  -moz-column-count: 2;
-  -webkit-column-count: 2;
-  column-count: 2;
-  column-gap: 20px;
-  max-width: 40rem;
+  display: inline-block;
+  max-width: 30rem;
+  padding: 1em;
   list-style-type: none;
+  text-align: left;
+}
+@media only screen and (min-width: 600px) {
+  #words {
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    column-count: 2;
+    column-gap: 20px;
+  }
 }
 
 #words li {
@@ -92,24 +123,33 @@ button::-moz-focus-inner {
 /**
 * Styles for the controls
 */
-fieldset {
-  padding: 0;
+#controls {
+  display: inline-block;
+  max-width: 30rem;
+  padding: 1em;
   border: none;
+  text-align: left;
+}
+label {
+  white-space: nowrap;
+  margin-top: 1em;
 }
 input {
   border: none;
   border-bottom: 1px solid #ccc;
-  margin-top: 1em;
   font-size: 1em;
 }
 input[type="number"] {
   width: 2rem;
 }
+select {
+  max-width: 10rem;
+}
 #create-grid, #solve {
   display: block;
   margin-top: 1rem;
 }
-#filler-letters {
+#secret-word {
   text-transform: uppercase;
 }
 

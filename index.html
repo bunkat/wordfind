@@ -9,23 +9,34 @@
 </head>
 <body>
     <h1>WordFind.js by BunKat &amp; Lucas-C</h1>
-    <div id="puzzle"></div>
-    <ul id="words">
-        <li><button id="add-word">Add word</button></li>
-    </ul>
-    <fieldset>
-        <label for="allowed-missing-words">Allowed missing words :</label>
-        <input id="allowed-missing-words" name="allowed-missing-words" type="number" min="0" max="5" step="1" value="2"></input>
-        <label for="max-grid-growth">Max grid growth :</label>
-        <input id="max-grid-growth" name="max-grid-growth" type="number" min="0" max="5" step="1" value="0"></input>
-        <label for="filler-letters">Extra letters :</label>
-        <input id="filler-letters"></input>
-    </fieldset>
-    <fieldset>
-        <button id="create-grid">Create grid</button>
-        <p id="result-message"></p>
-    </fieldset>
-    <button id="solve">Solve Puzzle</button>
+    <div id="main" role="main">
+        <div id="puzzle"></div>
+        <ul id="words">
+            <li><button id="add-word">Add word</button></li>
+        </ul>
+        <fieldset id="controls">
+            <label for="allowed-missing-words">Allowed missing words :
+                <input id="allowed-missing-words" type="number" min="0" max="5" step="1" value="2">
+            </label>
+            <label for="max-grid-growth">Max grid growth :
+                <input id="max-grid-growth" type="number" min="0" max="5" step="1" value="0">
+            </label>
+            <label for="extra-letters">Extra letters :
+                <select id="extra-letters">
+                    <option value="secret-word" selected>form a secret word</option>
+                    <option value="none">none, allow blanks</option>
+                    <option value="secret-word-plus-blanks">form a secret word but allow for extra blanks</option>
+                    <option value="random">random</option>
+                </select>
+            </label>
+            <label for="secret-word">Secret word :
+                <input id="secret-word">
+            </label>
+            <button id="create-grid">Create grid</button>
+            <p id="result-message"></p>
+            <button id="solve">Solve Puzzle</button>
+        </fieldset>
+    </div>
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
     <script type="text/javascript" src="wordfind.js"></script> 
@@ -55,17 +66,23 @@
         'sexy',
         'tendre',
     ].map(word => WordFindGame.insertWordBefore($('#add-word').parent(), word));
-    $('#filler-letters').val('LAETITIA');
+    $('#secret-word').val('LAETITIA');
 
     /* Init */
     function recreate() {
         $('#result-message').removeClass();
-        var game;
+        var fillBlanks, game;
+        if ($('#extra-letters').val() === 'none') {
+            fillBlanks = false;
+        } else if ($('#extra-letters').val().startsWith('secret-word')) {
+            fillBlanks = $('#secret-word').val();
+        }
         try {
             game = new WordFindGame('#puzzle', {
-                fillBlanks: $('#filler-letters').val(),
                 allowedMissingWords: +$('#allowed-missing-words').val(),
                 maxGridGrowth: +$('#max-grid-growth').val(),
+                fillBlanks: fillBlanks,
+                allowExtraBlanks: ['none', 'secret-word-plus-blanks'].includes($('#extra-letters').val()),
                 maxAttempts: 100,
             });
         } catch (error) {
@@ -82,6 +99,8 @@
     recreate();
 
     /* Event listeners */
+    $('#extra-letters').change((evt) => $('#secret-word').prop('disabled', !evt.target.value.startsWith('secret-word')));
+
     $('#add-word').click( () => WordFindGame.insertWordBefore($('#add-word').parent()));
 
     $('#create-grid').click(recreate);
