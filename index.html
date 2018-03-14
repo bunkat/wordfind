@@ -14,6 +14,10 @@
         <li><button id="add-word">Add word</button></li>
     </ul>
     <fieldset>
+        <label for="allowed-missing-words">Allowed missing words :</label>
+        <input id="allowed-missing-words" name="allowed-missing-words" type="number" min="0" max="5" step="1" value="2"></input>
+        <label for="max-grid-growth">Max grid growth :</label>
+        <input id="max-grid-growth" name="max-grid-growth" type="number" min="0" max="5" step="1" value="0"></input>
         <label for="filler-letters">Extra letters :</label>
         <input id="filler-letters"></input>
     </fieldset>
@@ -60,9 +64,9 @@
         try {
             game = new WordFindGame('#puzzle', {
                 fillBlanks: $('#filler-letters').val(),
-                allowedMissingWords: 2,
+                allowedMissingWords: +$('#allowed-missing-words').val(),
+                maxGridGrowth: +$('#max-grid-growth').val(),
                 maxAttempts: 100,
-                maxGridGrowth: 0,
             });
         } catch (error) {
             $('#result-message').text(`😞 ${error}, try to specify less ones`).css({color: 'red'});

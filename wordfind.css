@@ -102,6 +102,9 @@ input {
   margin-top: 1em;
   font-size: 1em;
 }
+input[type="number"] {
+  width: 2rem;
+}
 #create-grid, #solve {
   display: block;
   margin-top: 1rem;
