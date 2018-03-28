@@ -7,7 +7,6 @@
 */
 
 (function (document, $, wordfind) {
-
   'use strict';
 
   /**
@@ -17,16 +16,6 @@
   * WordFindGame requires wordfind.js and jQuery.
   */
 
-  /**
-  * Initializes the WordFindGame object.
-  *
-  * @api private
-  */
-  var WordFindGame = function() {
-
-    // List of words for this game
-    var wordList;
-
     /**
     * Draws the puzzle by inserting rows of buttons into el.
     *
@@ -34,7 +23,6 @@
     * @param {[[String]]} puzzle: The puzzle to draw
     */
     var drawPuzzle = function (el, puzzle) {
-      
       var output = '';
       // for each row in the puzzle
       for (var i = 0, height = puzzle.length; i < height; i++) {
@@ -55,24 +43,48 @@
       $(el).html(output);
     };
 
-    /**
-    * Draws the words by inserting an unordered list into el.
-    *
-    * @param {String} el: The jQuery element to write the words to
-    * @param {[String]} words: The words to draw
-    */
-    var drawWords = function (el, words) {
-      
-      var output = '<ul>';
-      for (var i = 0, len = words.length; i < len; i++) {
-        var word = words[i];
-        output += '<li class="word ' + word + '">' + word;
-      }
-      output += '</ul>';
-
-      $(el).html(output);
+    var getWords = function () {
+      return $('input.word').toArray().map(wordEl => wordEl.value.toLowerCase()).filter(word => word);
     };
 
+    /**
+    * Given two points, ensure that they are adjacent and determine what
+    * orientation the second point is relative to the first
+    *
+    * @param {int} x1: The x coordinate of the first point
+    * @param {int} y1: The y coordinate of the first point
+    * @param {int} x2: The x coordinate of the second point
+    * @param {int} y2: The y coordinate of the second point
+    */
+    var calcOrientation = function (x1, y1, x2, y2) {
+
+      for (var orientation in wordfind.orientations) {
+        var nextFn = wordfind.orientations[orientation];
+        var nextPos = nextFn(x1, y1, 1);
+
+        if (nextPos.x === x2 && nextPos.y === y2) {
+          return orientation;
+        }
+      }
+
+      return null;
+    };
+
+
+  /**
+  * Initializes the WordFindGame object.
+  *
+  * Creates a new word find game and draws the board and words.
+  *
+  * Returns the puzzle that was created.
+  *
+  * @param {String} puzzleEl: Selector to use when inserting the puzzle
+  * @param {Options} options: WordFind options to use when creating the puzzle
+  */
+  var WordFindGame = function (puzzleEl, options) {
+
+    // Class properties, game initial config:
+    var wordList, puzzle;
 
     /**
     * Game play events.
@@ -96,8 +108,17 @@
       selectedSquares.push(this);
       curWord = $(this).text();
     };
-
-
+    
+    var touchMove = function(e) {
+      var xPos = e.originalEvent.touches[0].pageX;
+      var yPos = e.originalEvent.touches[0].pageY;
+      var targetElement = document.elementFromPoint(xPos, yPos);
+      select(targetElement)
+    };
+    
+    var mouseMove = function() { 
+      select(this);
+    };
 
     /**
     * Event that handles mouse over on a new square. Ensures that the new square
@@ -173,18 +194,6 @@
         curOrientation = orientation;
         playTurn(target);
       }
-
-    };
-    
-    var touchMove = function(e) {
-      var xPos = e.originalEvent.touches[0].pageX;
-      var yPos = e.originalEvent.touches[0].pageY;
-      var targetElement = document.elementFromPoint(xPos, yPos);
-      select(targetElement)
-    };
-    
-    var mouseMove = function() { 
-      select(this);
     };
 
     /**
@@ -212,14 +221,13 @@
     *
     */
     var endTurn = function () {
-
       // see if we formed a valid word
       for (var i = 0, len = wordList.length; i < len; i++) {
         
         if (wordList[i] === curWord) {
           $('.selected').addClass('found');
           wordList.splice(i,1);
-          $('.' + curWord).addClass('wordFound');
+          $('input.word[value="' + curWord + '"]').addClass('wordFound');
         }
 
         if (wordList.length === 0) {
@@ -235,108 +243,73 @@
       curOrientation = null;
     };
 
+    /* Constructor START */
+    $('input.word').removeClass('wordFound');
+
+    // Class properties, game initial config:
+    wordList = getWords().sort();
+    puzzle = wordfind.newPuzzleLax(wordList, options);
+
+    // Draw all of the words
+    drawPuzzle(puzzleEl, puzzle);
+
+    // attach events to the buttons
+    // optimistically add events for windows 8 touch
+    if (window.navigator.msPointerEnabled) {
+      $('.puzzleSquare').on('MSPointerDown', startTurn);
+      $('.puzzleSquare').on('MSPointerOver', select);
+      $('.puzzleSquare').on('MSPointerUp', endTurn);
+    } else {
+      $('.puzzleSquare').mousedown(startTurn);
+      $('.puzzleSquare').mouseenter(mouseMove);
+      $('.puzzleSquare').mouseup(endTurn);
+      $('.puzzleSquare').on("touchstart", startTurn);
+      $('.puzzleSquare').on("touchmove", touchMove);
+      $('.puzzleSquare').on("touchend", endTurn);
+    }
+
     /**
-    * Given two points, ensure that they are adjacent and determine what
-    * orientation the second point is relative to the first
+    * Solves an existing puzzle.
     *
-    * @param {int} x1: The x coordinate of the first point
-    * @param {int} y1: The y coordinate of the first point
-    * @param {int} x2: The x coordinate of the second point
-    * @param {int} y2: The y coordinate of the second point
+    * @param {[[String]]} puzzle: The puzzle to solve
     */
-    var calcOrientation = function (x1, y1, x2, y2) {
+    this.solve = function() {
+      var solution = wordfind.solve(puzzle, wordList).found;
 
-      for (var orientation in wordfind.orientations) {
-        var nextFn = wordfind.orientations[orientation];
-        var nextPos = nextFn(x1, y1, 1);
+      for( var i = 0, len = solution.length; i < len; i++) {
+        var word = solution[i].word,
+            orientation = solution[i].orientation,
+            x = solution[i].x,
+            y = solution[i].y,
+            next = wordfind.orientations[orientation];
 
-        if (nextPos.x === x2 && nextPos.y === y2) {
-          return orientation;
-        }
-      }
-
-      return null;
-    };
-
-    return {
-
-      /**
-      * Creates a new word find game and draws the board and words.
-      *
-      * Returns the puzzle that was created.
-      *
-      * @param {[String]} words: The words to add to the puzzle
-      * @param {String} puzzleEl: Selector to use when inserting the puzzle
-      * @param {String} wordsEl: Selector to use when inserting the word list
-      * @param {Options} options: WordFind options to use when creating the puzzle
-      */
-      create: function(words, puzzleEl, wordsEl, options) {
-        
-        wordList = words.slice(0).sort();
-
-        var puzzle = wordfind.newPuzzle(words, options);
-
-        // draw out all of the words
-        drawPuzzle(puzzleEl, puzzle);
-        drawWords(wordsEl, wordList);
-
-        // attach events to the buttons
-        // optimistically add events for windows 8 touch
-        if (window.navigator.msPointerEnabled) {
-          $('.puzzleSquare').on('MSPointerDown', startTurn);
-          $('.puzzleSquare').on('MSPointerOver', select);
-          $('.puzzleSquare').on('MSPointerUp', endTurn);
-        }
-        else {
-          $('.puzzleSquare').mousedown(startTurn);
-          $('.puzzleSquare').mouseenter(mouseMove);
-          $('.puzzleSquare').mouseup(endTurn);
-          $('.puzzleSquare').on("touchstart", startTurn);
-          $('.puzzleSquare').on("touchmove", touchMove);
-          $('.puzzleSquare').on("touchend", endTurn);
-        }
-
-        return puzzle;
-      },
-
-      /**
-      * Solves an existing puzzle.
-      *
-      * @param {[[String]]} puzzle: The puzzle to solve
-      * @param {[String]} words: The words to solve for
-      */
-      solve: function(puzzle, words) {
-
-        var solution = wordfind.solve(puzzle, words).found;
-
-        for( var i = 0, len = solution.length; i < len; i++) {
-          var word = solution[i].word,
-              orientation = solution[i].orientation,
-              x = solution[i].x,
-              y = solution[i].y,
-              next = wordfind.orientations[orientation];
-
-          if (!$('.' + word).hasClass('wordFound')) {
-            for (var j = 0, size = word.length; j < size; j++) {
-              var nextPos = next(x, y, j);
-              $('[x="' + nextPos.x + '"][y="' + nextPos.y + '"]').addClass('solved');
-            }
-
-            $('.' + word).addClass('wordFound');
+        var wordEl = $('input.word[value="' + word + '"]');
+        if (!wordEl.hasClass('wordFound')) {
+          for (var j = 0, size = word.length; j < size; j++) {
+            var nextPos = next(x, y, j);
+            $('[x="' + nextPos.x + '"][y="' + nextPos.y + '"]').addClass('solved');
           }
-        }
 
+          wordEl.addClass('wordFound');
+        }
       }
     };
+  };
+
+  WordFindGame.emptySquaresCount = function () {
+    var allSquares = $('.puzzleSquare').toArray();
+    return allSquares.length - allSquares.filter(b => b.textContent.trim()).length;
+  };
+
+  // Static method
+  WordFindGame.insertWordBefore = function (el, word) {
+    $('<li><input class="word" value="' + (word || '') + '"></li>').insertBefore(el);
   };
 
 
   /**
   * Allow game to be used within the browser
   */
-  window.wordfindgame = WordFindGame();
+  window.WordFindGame = WordFindGame;
 
 }(document, jQuery, wordfind));
-
-
-
