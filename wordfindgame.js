@@ -102,18 +102,20 @@
     * to the letter that was selected.
     *
     */
-    var startTurn = function () {
+    var startTurn = function (evt) {
       $(this).addClass('selected');
       startSquare = this;
       selectedSquares.push(this);
       curWord = $(this).text();
+      evt.preventDefault();
     };
     
     var touchMove = function(e) {
-      var xPos = e.originalEvent.touches[0].pageX;
-      var yPos = e.originalEvent.touches[0].pageY;
+      var xPos = e.originalEvent.touches[0].clientX;
+      var yPos = e.originalEvent.touches[0].clientY;
       var targetElement = document.elementFromPoint(xPos, yPos);
       select(targetElement)
+      e.preventDefault();
     };
     
     var mouseMove = function() { 
