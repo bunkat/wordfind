@@ -20,14 +20,10 @@ h1 {
 }
 
 #main {
-  margin: 0 auto;
-  max-width: 80rem;
-  text-align: center; /* to center #puzzle on small devices */
-}
-@media only screen and (min-width: 600px) {
-  #main {
-    text-align: left;
-  }
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  align-items: center;
 }
 
 /**
@@ -36,7 +32,7 @@ h1 {
 #puzzle {
   display: inline-block;
   border: 1px solid black;
-  padding: 3vw;
+  padding: 0;
 }
 
 #puzzle > div { /* rows */
@@ -50,14 +46,10 @@ h1 {
   width: 7vw;
   text-transform: uppercase;
   background-color: white;
-  border: 0;
+  border: 1px solid black;
   font: 5vw sans-serif;
 }
 @media only screen and (min-width: 600px) {
-  #puzzle {
-    float: left;
-    padding: 1rem;
-  }
   .puzzleSquare {
     height: 3.5rem;
     width: 3.5rem;
@@ -93,8 +85,13 @@ button::-moz-focus-inner {
 /**
 * Styles for the word list
 */
+#words-editor {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+}
 #words {
-  display: inline-block;
   max-width: 30rem;
   padding: 1em;
   list-style-type: none;
@@ -124,7 +121,6 @@ button::-moz-focus-inner {
 * Styles for the controls
 */
 #controls {
-  display: inline-block;
   max-width: 30rem;
   padding: 1em;
   border: none;
@@ -140,7 +136,10 @@ input {
   font-size: 1em;
 }
 input[type="number"] {
-  width: 2rem;
+  width: 3rem;
+}
+select {
+  max-width: 10rem;
 }
 select {
   max-width: 10rem;

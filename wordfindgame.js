@@ -84,7 +84,7 @@
   var WordFindGame = function (puzzleEl, options) {
 
     // Class properties, game initial config:
-    var wordList, puzzle;
+    var wordList;
 
     /**
     * Game play events.
@@ -248,10 +248,10 @@
 
     // Class properties, game initial config:
     wordList = getWords().sort();
-    puzzle = wordfind.newPuzzleLax(wordList, options);
+    this.puzzle = wordfind.newPuzzle(wordList, options);
 
     // Draw all of the words
-    drawPuzzle(puzzleEl, puzzle);
+    drawPuzzle(puzzleEl, this.puzzle);
 
     // attach events to the buttons
     // optimistically add events for windows 8 touch
@@ -274,7 +274,7 @@
     * @param {[[String]]} puzzle: The puzzle to solve
     */
     this.solve = function() {
-      var solution = wordfind.solve(puzzle, wordList).found;
+      var solution = wordfind.solve(this.puzzle, wordList).found;
 
       for( var i = 0, len = solution.length; i < len; i++) {
         var word = solution[i].word,
@@ -296,14 +296,13 @@
     };
   };
 
+  // Static methods
   WordFindGame.emptySquaresCount = function () {
     var allSquares = $('.puzzleSquare').toArray();
     return allSquares.length - allSquares.filter(b => b.textContent.trim()).length;
   };
-
-  // Static method
-  WordFindGame.insertWordBefore = function (el, word) {
-    $('<li><input class="word" value="' + (word || '') + '"></li>').insertBefore(el);
+  WordFindGame.insertWord = function (wordsList, word) {
+    wordsList.append($('<li><input class="word" value="' + (word || '') + '"></li>'));
   };
 
 
