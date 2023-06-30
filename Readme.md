@@ -8,4 +8,4 @@ The game has a dependency on `jQuery`.
 This is a fork of https://github.com/bunkat/wordfind allowing to specify the filling letters you want,
 letting some words be ommited and making the generator to retry with a bigger grid if none was found initially.
 
-Check out the sample game at http://Lucas-C.github.com/wordfind/.
+Check out the sample game at http://Lucas-C.github.io/wordfind/.
