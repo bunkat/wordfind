@@ -19,6 +19,15 @@
   * WordFind has no dependencies.
   */
 
+  // FROM: https://stackoverflow.com/a/6274381/636849
+  function shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+  }
+
   /**
   * Initializes the WordFind object.
   *
@@ -37,19 +46,30 @@
 
     // The list of all the possible orientations
     var allOrientations = ['horizontal','horizontalBack','vertical','verticalUp',
-                           'diagonal','diagonalUp','diagonalBack','diagonalUpBack'];
+                           'diagonalDown','diagonalDownBack','diagonalUp','diagonalUpBack'];
+
+    var orientation2direction = {
+      'horizontal': 'horizontal',
+      'horizontalBack': 'horizontal',
+      'vertical': 'vertical',
+      'verticalUp': 'vertical',
+      'diagonalDown': 'diagonalDown',
+      'diagonalDownBack': 'diagonalDown',
+      'diagonalUp': 'diagonalUp',
+      'diagonalUpBack': 'diagonalUp',
+    };
 
     // The definition of the orientation, calculates the next square given a
     // starting square (x,y) and distance (i) from that square.
     var orientations = {
-      horizontal:     function(x,y,i) { return {x: x+i, y: y  }; },
-      horizontalBack: function(x,y,i) { return {x: x-i, y: y  }; },
-      vertical:       function(x,y,i) { return {x: x,   y: y+i}; },
-      verticalUp:     function(x,y,i) { return {x: x,   y: y-i}; },
-      diagonal:       function(x,y,i) { return {x: x+i, y: y+i}; },
-      diagonalBack:   function(x,y,i) { return {x: x-i, y: y+i}; },
-      diagonalUp:     function(x,y,i) { return {x: x+i, y: y-i}; },
-      diagonalUpBack: function(x,y,i) { return {x: x-i, y: y-i}; }
+      horizontal:       function(x,y,i) { return {x: x+i, y: y  }; },
+      horizontalBack:   function(x,y,i) { return {x: x-i, y: y  }; },
+      vertical:         function(x,y,i) { return {x: x,   y: y+i}; },
+      verticalUp:       function(x,y,i) { return {x: x,   y: y-i}; },
+      diagonalDown:     function(x,y,i) { return {x: x+i, y: y+i}; },
+      diagonalDownBack: function(x,y,i) { return {x: x-i, y: y-i}; },
+      diagonalUp:       function(x,y,i) { return {x: x+i, y: y-i}; },
+      diagonalUpBack:   function(x,y,i) { return {x: x-i, y: y+i}; }
     };
 
     // Determines if an orientation is possible given the starting square (x,y),
@@ -57,14 +77,14 @@
     // Returns true if the word will fit starting at the square provided using
     // the specified orientation.
     var checkOrientations = {
-      horizontal:     function(x,y,h,w,l) { return w >= x + l; },
-      horizontalBack: function(x,y,h,w,l) { return x + 1 >= l; },
-      vertical:       function(x,y,h,w,l) { return h >= y + l; },
-      verticalUp:     function(x,y,h,w,l) { return y + 1 >= l; },
-      diagonal:       function(x,y,h,w,l) { return (w >= x + l) && (h >= y + l); },
-      diagonalBack:   function(x,y,h,w,l) { return (x + 1 >= l) && (h >= y + l); },
-      diagonalUp:     function(x,y,h,w,l) { return (w >= x + l) && (y + 1 >= l); },
-      diagonalUpBack: function(x,y,h,w,l) { return (x + 1 >= l) && (y + 1 >= l); }
+      horizontal:       function(x,y,h,w,l) { return w >= x + l; },
+      horizontalBack:   function(x,y,h,w,l) { return x + 1 >= l; },
+      vertical:         function(x,y,h,w,l) { return h >= y + l; },
+      verticalUp:       function(x,y,h,w,l) { return y + 1 >= l; },
+      diagonalDown:     function(x,y,h,w,l) { return (w >= x + l) && (h >= y + l); },
+      diagonalDownBack: function(x,y,h,w,l) { return (x + 1 >= l) && (y + 1 >= l); },
+      diagonalUp:       function(x,y,h,w,l) { return (w >= x + l) && (y + 1 >= l); },
+      diagonalUpBack:   function(x,y,h,w,l) { return (x + 1 >= l) && (h >= y + l); }
     };
 
     // Determines the next possible valid square given the square (x,y) was ]
@@ -72,14 +92,14 @@
     // squares that must be checked. Returning {x: x+1, y: y} will always work
     // but will not be optimal.
     var skipOrientations = {
-      horizontal:     function(x,y,l) { return {x: 0,   y: y+1  }; },
-      horizontalBack: function(x,y,l) { return {x: l-1, y: y    }; },
-      vertical:       function(x,y,l) { return {x: 0,   y: y+100}; },
-      verticalUp:     function(x,y,l) { return {x: 0,   y: l-1  }; },
-      diagonal:       function(x,y,l) { return {x: 0,   y: y+1  }; },
-      diagonalBack:   function(x,y,l) { return {x: l-1, y: x>=l-1?y+1:y    }; },
-      diagonalUp:     function(x,y,l) { return {x: 0,   y: y<l-1?l-1:y+1  }; },
-      diagonalUpBack: function(x,y,l) { return {x: l-1, y: x>=l-1?y+1:y  }; }
+      horizontal:       function(x,y,l) { return {x: 0,   y: y+1  }; },
+      horizontalBack:   function(x,y,l) { return {x: l-1, y: y    }; },
+      vertical:         function(x,y,l) { return {x: 0,   y: y+100}; },
+      verticalUp:       function(x,y,l) { return {x: 0,   y: l-1  }; },
+      diagonalDown:     function(x,y,l) { return {x: 0,   y: y+1  }; },
+      diagonalDownBack: function(x,y,l) { return {x: l-1, y: x>=l-1?y+1:y  }; },
+      diagonalUp:       function(x,y,l) { return {x: 0,   y: y<l-1?l-1:y+1  }; },
+      diagonalUpBack:   function(x,y,l) { return {x: l-1, y: x>=l-1?y+1:y    }; }
     };
 
     /**
@@ -91,7 +111,7 @@
     * @param {[String]} words: The list of words to fit into the puzzle
     * @param {[Options]} options: The options to use when filling the puzzle
     */
-    var fillPuzzle = function (words, options) {
+    var fillPuzzle = function (words, options, wordsNotIncluded) {
 
       var puzzle = [], i, j, len;
 
@@ -104,10 +124,15 @@
       }
 
       // add each word into the puzzle one at a time
+      shuffle(words);
       for (i = 0, len = words.length; i < len; i++) {
         if (!placeWordInPuzzle(puzzle, options, words[i])) {
-          // if a word didn't fit in the puzzle, give up
-          return null;
+          if (options.allowedMissingWords && wordsNotIncluded.length < options.allowedMissingWords) {
+            wordsNotIncluded.push(words[i]);
+          } else {
+            // if a word didn't fit in the puzzle, give up
+            return null;
+          }
         }
       }
 
@@ -300,6 +325,8 @@
       */
       orientations: orientations,
 
+      orientation2direction: orientation2direction,
+
       /**
       * Generates a new word find (word search) puzzle.
       *
@@ -323,23 +350,25 @@
         if (!words.length) {
           throw new Error('Zero words provided');
         }
-        var wordList, puzzle, attempts = 0, gridGrowths = 0, opts = settings || {};
+        var wordList, puzzle, lettersAdded, attempts = 0, gridGrowths = 0, opts = settings || {};
 
         // copy and sort the words by length, inserting words into the puzzle
         // from longest to shortest works out the best
-        wordList = words.slice(0).sort();
+        wordList = words.slice(0).sort((a, b) => b.length - a.length);
 
         // initialize the options
         var maxWordLength = wordList[0].length;
         var options = {
-          height:           opts.height || maxWordLength,
-          width:            opts.width || maxWordLength,
-          orientations:     opts.orientations || allOrientations,
-          fillBlanks:       opts.fillBlanks !== undefined ? opts.fillBlanks : true,
-          allowExtraBlanks: opts.allowExtraBlanks !== undefined ? opts.allowExtraBlanks : true,
-          maxAttempts:      opts.maxAttempts || 3,
-          maxGridGrowth:    opts.maxGridGrowth !== undefined ? opts.maxGridGrowth : 10,
-          preferOverlap:    opts.preferOverlap !== undefined ? opts.preferOverlap : true
+          height:               opts.height || maxWordLength,
+          width:                opts.width || maxWordLength,
+          orientations:         opts.orientations || allOrientations,
+          fillBlanks:           opts.fillBlanks !== undefined ? opts.fillBlanks : true,
+          maxFillings:          opts.maxFillings,
+          allowExtraBlanks:     opts.allowExtraBlanks !== undefined ? opts.allowExtraBlanks : true,
+          maxAttempts:          opts.maxAttempts || 3,
+          maxGridGrowth:        opts.maxGridGrowth !== undefined ? opts.maxGridGrowth : 10,
+          preferOverlap:        opts.preferOverlap !== undefined ? opts.preferOverlap : true,
+          allowedMissingWords:  opts.allowedMissingWords,
         };
 
         // add the words to the puzzle
@@ -347,7 +376,47 @@
         // maxAttempts and then increase the puzzle size and try again
         while (!puzzle) {
           while (!puzzle && attempts++ < options.maxAttempts) {
-            puzzle = fillPuzzle(wordList, options);
+            try {
+              var wordsNotIncluded = [];
+              puzzle = fillPuzzle(wordList, options, wordsNotIncluded);
+              lettersAdded = []
+              // fill in empty spaces with random letters
+              if (options.fillBlanks) {
+                var lettersToAdd, fillingBlanksCount = 0, extraLetterGenerator;
+                if (typeof options.fillBlanks === 'function') {
+                  extraLetterGenerator = options.fillBlanks;
+                } else if (typeof options.fillBlanks === 'string') {
+                  lettersToAdd = options.fillBlanks.toUpperCase().split('');
+                  extraLetterGenerator = () => lettersToAdd.pop() || (fillingBlanksCount++ && '');
+                } else {
+                  extraLetterGenerator = () => LETTERS[Math.floor(Math.random() * LETTERS.length)];
+                }
+                lettersAdded = this.fillBlanks({puzzle, extraLetterGenerator: extraLetterGenerator});
+                if (lettersToAdd && lettersToAdd.length) {
+                  throw new Error(`Some extra letters provided were not used: ${lettersToAdd}`);
+                }
+                if (lettersToAdd && fillingBlanksCount && !options.allowExtraBlanks) {
+                  throw new Error(`${fillingBlanksCount} extra letters were missing to fill the grid`);
+                }
+                if (options.maxFillings && lettersAdded.length > options.maxFillings) {
+                  throw new Error(`Too many extra letters (${lettersAdded.length}) added to fill the grid`);
+                }
+                var gridFillPercent = 100 * (1 - lettersAdded.length / (options.width * options.height));
+                console.log(`Final grid filled at ${gridFillPercent.toFixed(0)}% - Blanks filled with ${lettersAdded.length} letters: ${lettersAdded.map(a => a.letter).toSorted().join('').toUpperCase()}`);
+              } else {
+                var blanksCount = this.countBlanks(puzzle)
+                if (options.maxFillings && blanksCount > options.maxFillings) {
+                  throw new Error(`Too many blanks (${blanksCount}) in the grid`);
+                }
+                var gridFillPercent = 100 * (1 - blanksCount / (options.width * options.height));
+                console.log(`Final grid filled at ${gridFillPercent.toFixed(0)}% with ${blanksCount} blanks`);
+              }
+            } catch (error) {
+                if (attempts > options.maxAttempts) {
+                  throw e;
+                }
+                puzzle = null; // force retry
+            }
           }
 
           if (!puzzle) {
@@ -362,56 +431,13 @@
           }
         }
 
-        // fill in empty spaces with random letters
-        if (options.fillBlanks) {
-            var lettersToAdd, fillingBlanksCount = 0, extraLetterGenerator;
-            if (typeof options.fillBlanks === 'function') {
-                extraLetterGenerator = options.fillBlanks;
-            } else if (typeof options.fillBlanks === 'string') {
-                lettersToAdd = options.fillBlanks.toLowerCase().split('');
-                extraLetterGenerator = () => lettersToAdd.pop() || (fillingBlanksCount++ && '');
-            } else {
-                extraLetterGenerator = () => LETTERS[Math.floor(Math.random() * LETTERS.length)];
-            }
-            var extraLettersCount = this.fillBlanks({puzzle, extraLetterGenerator: extraLetterGenerator});
-            if (lettersToAdd && lettersToAdd.length) {
-                throw new Error(`Some extra letters provided were not used: ${lettersToAdd}`);
-            }
-            if (lettersToAdd && fillingBlanksCount && !options.allowExtraBlanks) {
-                throw new Error(`${fillingBlanksCount} extra letters were missing to fill the grid`);
-            }
-            var gridFillPercent = 100 * (1 - extraLettersCount / (options.width * options.height));
-            console.log(`Blanks filled with ${extraLettersCount} random letters - Final grid is filled at ${gridFillPercent.toFixed(0)}%`);
+        if (wordsNotIncluded.length) {
+            console.log('Words not included:', wordsNotIncluded.join(', '));
         }
 
-        return puzzle;
-      },
-
-      /**
-      * Wrapper around `newPuzzle` allowing to find a solution without some words.
-      *
-      * @param {options} settings: The options to use for this puzzle.
-      * Same as `newPuzzle` + allowedMissingWords
-      */
-      newPuzzleLax: function(words, opts) {
-        try {
-            return this.newPuzzle(words, opts);
-        } catch (e) {
-            if (!opts.allowedMissingWords) {
-                throw e;
-            }
-            var opts = Object.assign({}, opts); // shallow copy
-            opts.allowedMissingWords--;
-            for (var i = 0; i < words.length; i++) {
-                var wordList = words.slice(0);
-                wordList.splice(i, 1);
-                try {
-                    var puzzle = this.newPuzzleLax(wordList, opts);
-                    console.log(`Solution found without word "${words[i]}"`);
-                    return puzzle;
-                } catch (e) {} // continue if error
-            }
-            throw e;
+        return {
+          grid: puzzle,
+          lettersAdded: lettersAdded
         }
       },
 
@@ -422,17 +448,34 @@
       * @api public
       */
       fillBlanks: function ({puzzle, extraLetterGenerator}) {
-        var extraLettersCount = 0;
+        var lettersAdded = [];
         for (var i = 0, height = puzzle.length; i < height; i++) {
           var row = puzzle[i];
           for (var j = 0, width = row.length; j < width; j++) {
             if (!puzzle[i][j]) {
               puzzle[i][j] = extraLetterGenerator();
-              extraLettersCount++;
+              lettersAdded.push({
+                i: i,
+                j: j,
+                letter: puzzle[i][j]
+              })
             }
           }
         }
-        return extraLettersCount;
+        return lettersAdded;
+      },
+
+      countBlanks: function (puzzle) {
+        var count = 0;
+        for (var i = 0, height = puzzle.length; i < height; i++) {
+          var row = puzzle[i];
+          for (var j = 0, width = row.length; j < width; j++) {
+            if (!puzzle[i][j]) {
+              count += 1;
+            }
+          }
+        }
+        return count;
       },
 
       /**

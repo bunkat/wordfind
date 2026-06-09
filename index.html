@@ -11,32 +11,55 @@
     <h1>WordFind.js by BunKat &amp; Lucas-C</h1>
     <div id="main" role="main">
         <div id="puzzle"></div>
-        <ul id="words">
-            <li><button id="add-word">Add word</button></li>
-        </ul>
+        <div id="words-editor">
+            <p>List of hidden words</p>
+            <ul id="words"></ul>
+            <div>
+                <button onclick="WordFindGame.insertWord($('#words'))">Add word</button>
+                <button onclick="$('#words').children().last().remove()">Remove last word</button>
+            </div>
+        </div>
         <fieldset id="controls">
             <label for="allowed-missing-words">Allowed missing words :
-                <input id="allowed-missing-words" type="number" min="0" max="5" step="1" value="2">
+                <input id="allowed-missing-words" type="number" min="0" max="10" step="1" value="2">
             </label>
             <label for="max-grid-growth">Max grid growth :
                 <input id="max-grid-growth" type="number" min="0" max="5" step="1" value="0">
             </label>
-            <label for="extra-letters">Extra letters :
-                <select id="extra-letters">
-                    <option value="secret-word" selected>form a secret word</option>
+            <label for="max-attemps-per-grid-and-wordset">Max attemps per grid &amp; wordset :
+                <input id="max-attemps-per-grid-and-wordset" type="number" min="1" max="999" step="1" value="100">
+            </label>
+            <label for="prefer-letter-overlaps">Prefer letter overlap :
+                <input id="prefer-letter-overlaps" type="checkbox" checked>
+            </label>
+            <label for="filling-letters">Filling letters :
+                <select id="filling-letters" selected>
+                    <option value="secret-word">form a secret word</option>
                     <option value="none">none, allow blanks</option>
                     <option value="secret-word-plus-blanks">form a secret word but allow for extra blanks</option>
                     <option value="random">random</option>
                 </select>
             </label>
-            <label for="secret-word">Secret word :
+            <label for="max-fillings">Max filling blanks/letters:
+                <input id="max-fillings" type="number" min="1" max="100" step="1" value="30">
+            </label>
+            <label for="color-filling-letters">Color filling letters:
+                <input id="color-filling-letters" type="checkbox" checked>
+            </label>
+            <label for="secret-word">Secret word:
                 <input id="secret-word">
             </label>
-            <button id="create-grid">Create grid</button>
+            <br><br>
+            <button type="submit" onclick="recreateGrid()">Recreate grid</button>
             <p id="result-message"></p>
-            <button id="solve">Solve Puzzle</button>
+            <button type="submit" onclick="game.solve()">Solve Puzzle</button>
+            <button type="submit" onclick="game.downloadSvgGrid()">Download grid as SVG image</button>
         </fieldset>
     </div>
+
+    <footer>
+        Source code: <a href="https://github.com/Lucas-C/wordfind">github.com/Lucas-C/wordfind</a>
+    </footer>
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
     <script type="text/javascript" src="wordfind.js"></script> 
@@ -65,16 +88,16 @@
         'prudente',
         'sexy',
         'tendre',
-    ].map(word => WordFindGame.insertWordBefore($('#add-word').parent(), word));
+    ].map(word => WordFindGame.insertWord($('#words'), word));
     $('#secret-word').val('LAETITIA');
 
     /* Init */
-    function recreate() {
-        $('#result-message').removeClass();
+    window.recreateGrid = function() {
+        $('#puzzle').children().remove();
         var fillBlanks, game;
-        if ($('#extra-letters').val() === 'none') {
+        if ($('#filling-letters').val() === 'none') {
             fillBlanks = false;
-        } else if ($('#extra-letters').val().startsWith('secret-word')) {
+        } else if ($('#filling-letters').val().startsWith('secret-word')) {
             fillBlanks = $('#secret-word').val();
         }
         try {
@@ -82,30 +105,33 @@
                 allowedMissingWords: +$('#allowed-missing-words').val(),
                 maxGridGrowth: +$('#max-grid-growth').val(),
                 fillBlanks: fillBlanks,
-                allowExtraBlanks: ['none', 'secret-word-plus-blanks'].includes($('#extra-letters').val()),
-                maxAttempts: 100,
+                maxFillings: +$('#max-fillings').val(),
+                allowExtraBlanks: ['none', 'secret-word-plus-blanks'].includes($('#filling-letters').val()),
+                colorFillingLetters: $('#color-filling-letters').val() == 'on',
+                maxAttempts: +$('#max-attemps-per-grid-and-wordset').val(),
+                preferOverlap: $('#prefer-letter-overlaps').val() == 'on'
             });
         } catch (error) {
-            $('#result-message').text(`😞 ${error}, try to specify less ones`).css({color: 'red'});
+            $('#result-message').text(`😞 ${error} → Retry, specify less words or allow more missing words / grid growth`).css({color: 'red'});
             return;
         }
-        wordfind.print(game);
-        if (window.game) {
-            var emptySquaresCount = WordFindGame.emptySquaresCount();
-            $('#result-message').text(`😃 ${emptySquaresCount ? 'but there are empty squares' : ''}`).css({color: ''});
+        wordfind.print(game.puzzle);
+        var resultMsg = `😃`
+        var addedLettersCount = game.addedLettersCount();
+        if (addedLettersCount) {
+            resultMsg += ` with ${addedLettersCount} letters added`
         }
+        var emptySquaresCount = WordFindGame.emptySquaresCount();
+        if (emptySquaresCount) {
+            resultMsg += ` with ${emptySquaresCount} empty squares`
+        }
+        $('#result-message').text(resultMsg).css({color: ''});
         window.game = game;
     }
-    recreate();
+    recreateGrid();
 
     /* Event listeners */
-    $('#extra-letters').change((evt) => $('#secret-word').prop('disabled', !evt.target.value.startsWith('secret-word')));
-
-    $('#add-word').click( () => WordFindGame.insertWordBefore($('#add-word').parent()));
-
-    $('#create-grid').click(recreate);
-
-    $('#solve').click(() => game.solve());
+    $('#filling-letters').change((evt) => $('#secret-word').prop('disabled', !evt.target.value.startsWith('secret-word')));
     </script>
 </body>
 </html>
