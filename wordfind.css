@@ -42,6 +42,7 @@ h1 {
 #puzzle > div { /* rows */
   width: 100%;
   margin: 0 auto;
+  white-space: nowrap; /* a row never wraps, even on narrow screens */
 }
 
 /* style for each square in the puzzle */
